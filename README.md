@@ -4,6 +4,10 @@
 
 This app generates a web interface for displaying movie posters digitally on a wall mounted TV/Montior. 
 
+## Features
+- Display Movie Posters from Plex Media Server
+- When Movie / Episode are playing, show Poster and details of currently playing item
+
 ## Overview of Stack
 - Server
   - ASP.NET Core
