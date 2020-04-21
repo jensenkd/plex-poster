@@ -8,10 +8,20 @@
           font-weight: bold;
           color: yellow;"
       >
-        <div style="border: solid 1px yellow; padding: 10px; border-bottom: none;">START TIME</div>
-        <div style="color: white; border: solid 1px yellow; padding: 10px;">3:43 PM</div>
+        <div
+          style="border: solid 1px yellow; padding: 10px; border-bottom: none;"
+        >
+          START TIME
+        </div>
+        <div style="color: white; border: solid 1px yellow; padding: 10px;">
+          3:43 PM
+        </div>
       </div>
-      <div id="title-header" class="col-md-6" style="padding-top:10px; border-top: solid 1px yellow; border-bottom: solid 1px yellow;">
+      <div
+        id="title-header"
+        class="col-md-6"
+        style="padding-top:10px;"
+      >
         <span v-if="session">NOW PLAYING</span>
         <span v-else>COMING SOON</span>
       </div>
@@ -22,13 +32,23 @@
           font-weight: bold;
           color: yellow;"
       >
-        <div style="border: solid 1px yellow; padding: 10px; border-bottom: none;">START TIME</div>
-        <div style="color: white; border: solid 1px yellow; padding: 10px;">5:43 PM</div>
+        <div
+          style="border: solid 1px yellow; padding: 10px; border-bottom: none;"
+        >
+          END TIME
+        </div>
+        <div style="color: white; border: solid 1px yellow; padding: 10px;">
+          5:43 PM
+        </div>
       </div>
     </div>
 
     <div id="middle" class="middle">
-      <img v-if="session && session.posterUrl" :src="session.posterUrl" style="width: 100%" />
+      <img
+        v-if="session && session.posterUrl"
+        :src="session.posterUrl"
+        style="width: 100%"
+      />
     </div>
 
     <div class="row" style="overflow: hidden;" align="center">
@@ -85,12 +105,15 @@ export default {
   data() {
     return {
       connection: null,
-      session: null
+      session: null,
+      plexAuthKey: process.env.VUE_APP_PLEX_AUTH_KEY,
+      plexServerHost: process.env.VUE_APP_PLEX_SERVER_HOST,
+      plexPlayerMachineId: process.env.VUE_APP_PLEX_PLAYER_MACHINE_ID
     };
   },
   created() {
     this.connection = new signalR.HubConnectionBuilder()
-      .withUrl("https://localhost:5001/hubs/session")
+      .withUrl(process.env.VUE_APP_API_URI + "hubs/session")
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
       .build();
@@ -116,9 +139,9 @@ export default {
         this.connection
           .invoke(
             "InitiateSession",
-            process.env.PLEX_AUTH_KEY,
-            process.env.PLEX_SERVER_NAME,
-            process.env.PLEX_PLAYER_MACHINE_ID
+            this.plexAuthKey,
+            this.plexServerHost,
+            this.plexPlayerMachineId
           )
           .catch(function(err) {
             return console.error(err.toString());
