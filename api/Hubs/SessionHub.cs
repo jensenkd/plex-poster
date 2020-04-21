@@ -4,13 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Dibbler.Poster.Api.ResourceModels;
-using Dibbler.Poster.Api.Services;
 using Microsoft.AspNetCore.SignalR;
 using Plex.Api;
 using Plex.Api.Models.Server;
+using PlexPoster.Api.ResourceModels;
+using PlexPoster.Api.Services;
 
-namespace Dibbler.Poster.Api.Hubs
+namespace PlexPoster.Api.Hubs
 {
     public class SessionHub : Hub
     {

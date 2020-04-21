@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Dibbler.Poster.Api
+namespace PlexPoster.Api
 {
     public class Program
     {

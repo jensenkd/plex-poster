@@ -1,6 +1,6 @@
 using System;
 
-namespace Dibbler.Poster.Api.ResourceModels
+namespace PlexPoster.Api.ResourceModels
 {
     public class SessionResponseModel
     {

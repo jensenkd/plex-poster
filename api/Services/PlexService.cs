@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Plex.Api;
 using Plex.Api.Models.Status;
 
-namespace Dibbler.Poster.Api.Services
+namespace PlexPoster.Api.Services
 {
     public class PlexService
     {

@@ -1,6 +1,4 @@
 using System;
-using Dibbler.Poster.Api.Hubs;
-using Dibbler.Poster.Api.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -8,8 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Plex.Api;
 using Plex.Api.Api;
+using PlexPoster.Api.Hubs;
+using PlexPoster.Api.Services;
 
-namespace Dibbler.Poster.Api
+namespace PlexPoster.Api
 {
     public class Startup
     {
