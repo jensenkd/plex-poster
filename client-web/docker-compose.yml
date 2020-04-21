@@ -1,0 +1,17 @@
+version: '2'
+services:
+
+  frontend:
+    build: ./frontend
+    container_name: plex-poster_frontend
+    command: npm run serve
+    ports: 
+      - '8080:9000'
+    volumes:
+      - ./frontend:/app
+    environment:
+      NODE_ENV: development
+
+  backend:
+    container_name: plex-poster_backend
+    
