@@ -17,7 +17,7 @@ This app generates a web interface for displaying movie posters digitally on a w
 
 1. Install the following:
    - [.NET Core 3.1](https://www.microsoft.com/net/core)
-   - [Node.js >= v7.8.0](https://nodejs.org/en/download/)
+   - [Node.js >= v8.11.0](https://nodejs.org/en/download/)
    - [Docker](https://docs.docker.com/engine/installation/)
 2. Run `npm install && npm start`
 3. Open browser and navigate to [http://localhost:8080](http://localhost:8080).
