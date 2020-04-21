@@ -1,5 +1,7 @@
 # Plex Digital Movie Poster
 
+![Example Poster](./docs/poster_example.png)
+
 This app generates a web interface for displaying movie posters digitally on a wall mounted TV/Montior. 
 
 ## Overview of Stack
