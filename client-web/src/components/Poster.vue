@@ -8,12 +8,12 @@
           font-weight: bold;
           color: yellow;"
       >
-        <div
+        <div v-if="session.playerState != 'none'"
           style="border: solid 1px yellow; padding: 10px; border-bottom: none;"
         >
           START TIME
         </div>
-        <div style="color: white; border: solid 1px yellow; padding: 10px;">
+        <div v-if="session.playerState != 'none'" style="color: white; border: solid 1px yellow; padding: 10px;">
           3:43 PM
         </div>
       </div>
@@ -22,7 +22,7 @@
         class="col-md-6"
         style="padding-top:10px;"
       >
-        <span v-if="session">NOW PLAYING</span>
+        <span v-if="session && session.playerState != 'none'">NOW PLAYING</span>
         <span v-else>COMING SOON</span>
       </div>
       <div
@@ -32,12 +32,12 @@
           font-weight: bold;
           color: yellow;"
       >
-        <div
+        <div v-if="session.playerState != 'none'"
           style="border: solid 1px yellow; padding: 10px; border-bottom: none;"
         >
           END TIME
         </div>
-        <div style="color: white; border: solid 1px yellow; padding: 10px;">
+        <div v-if="session.playerState != 'none'" style="color: white; border: solid 1px yellow; padding: 10px;">
           5:43 PM
         </div>
       </div>
@@ -108,7 +108,8 @@ export default {
       session: null,
       plexAuthKey: process.env.VUE_APP_PLEX_AUTH_KEY,
       plexServerHost: process.env.VUE_APP_PLEX_SERVER_HOST,
-      plexPlayerMachineId: process.env.VUE_APP_PLEX_PLAYER_MACHINE_ID
+      plexPlayerMachineId: process.env.VUE_APP_PLEX_PLAYER_MACHINE_ID,
+      plexMovieLibraries: process.env.VUE_APP_PLEX_MOVIE_LIBRARIES.split(",")
     };
   },
   created() {
@@ -141,7 +142,8 @@ export default {
             "InitiateSession",
             this.plexAuthKey,
             this.plexServerHost,
-            this.plexPlayerMachineId
+            this.plexPlayerMachineId,
+            this.plexMovieLibraries
           )
           .catch(function(err) {
             return console.error(err.toString());
