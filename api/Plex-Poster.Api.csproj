@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Plex.Api" Version="1.0.60" />
+      <PackageReference Include="Plex.Api" Version="1.0.61" />
     </ItemGroup>
 
 

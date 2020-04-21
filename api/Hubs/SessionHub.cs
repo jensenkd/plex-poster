@@ -46,28 +46,31 @@ namespace PlexPoster.Api.Hubs
             return percentComplete;
         }
 
-        public async Task<SessionResponseModel> InitiateSession(string authKey, string serverName, string playerId)
+        public async Task<SessionResponseModel> InitiateSession(string authKey, string serverHost, string playerId)
         {
-            List<Server> servers = await _plexClient.GetServers(authKey);
+            // List<Server> servers = await _plexClient.GetServers(authKey);
+            //
+            // if (servers == null || servers.Count == 0)
+            // {
+            //     throw new ApplicationException("Invalid Server");
+            // }
+            //
+            // Server server = servers.FirstOrDefault(c=> string.Equals(serverHost, c.Name, StringComparison.OrdinalIgnoreCase));
+            // if (server == null)
+            // {
+            //     throw new ApplicationException("Invalid Server");
+            // }
+            //
+            // Uri fullUri = server.Host.ReturnUriFromServerInfo(server);
+            //
 
-            if (servers == null || servers.Count == 0)
-            {
-                throw new ApplicationException("Invalid Server");
-            }
+            var serverHostFullUri = serverHost.TrimEnd('/');
             
-            Server server = servers.FirstOrDefault(c=> string.Equals(serverName, c.Name, StringComparison.OrdinalIgnoreCase));
-            if (server == null)
-            {
-                throw new ApplicationException("Invalid Server");
-            }
-            
-            Uri fullUri = server.Host.ReturnUriFromServerInfo(server);
-        
             while (true)
             {
                 SessionResponseModel sessionModel = null;
 
-                var session = await _plexService.GetActiveSession(authKey, fullUri.ToString(), playerId);
+                var session = await _plexService.GetActiveSession(authKey, serverHostFullUri, playerId);
 
                 if (session?.Player != null && (string.Equals(session.Type, "movie", StringComparison.OrdinalIgnoreCase) ||
                                                 string.Equals(session.Type, "episode", StringComparison.OrdinalIgnoreCase)))
@@ -84,14 +87,14 @@ namespace PlexPoster.Api.Hubs
                     if (string.Equals(session.Type, "movie", StringComparison.OrdinalIgnoreCase))
                     {
                         sessionModel.Title = session.Title;
-                        sessionModel.ArtUrl = Path.Join(fullUri.ToString().TrimEnd('/'), session.Art.TrimEnd('/'), "?X-Plex-Token=" + authKey);
-                        sessionModel.PosterUrl = Path.Join(fullUri.ToString().TrimEnd('/'), session.Thumb.TrimEnd('/'), "?X-Plex-Token=" + authKey);
+                        sessionModel.ArtUrl = Path.Join(serverHostFullUri, session.Art.TrimEnd('/'), "?X-Plex-Token=" + authKey);
+                        sessionModel.PosterUrl = Path.Join(serverHostFullUri, session.Thumb.TrimEnd('/'), "?X-Plex-Token=" + authKey);
                     }
                     else
                     {
                         sessionModel.Title = session.GrandparentTitle + " : " + session.ParentTitle + " : " + session.Title;
-                        sessionModel.ArtUrl = Path.Join(fullUri.ToString().TrimEnd('/'), session.GrandparentArt.TrimEnd('/'), "?X-Plex-Token=" + authKey);
-                        sessionModel.PosterUrl = Path.Join(fullUri.ToString().TrimEnd('/'), session.GrandparentThumb.TrimEnd('/'), "?X-Plex-Token=" + authKey);
+                        sessionModel.ArtUrl = Path.Join(serverHostFullUri, session.GrandparentArt.TrimEnd('/'), "?X-Plex-Token=" + authKey);
+                        sessionModel.PosterUrl = Path.Join(serverHostFullUri, session.GrandparentThumb.TrimEnd('/'), "?X-Plex-Token=" + authKey);
                     }
                     
                     await Clients.Caller.SendAsync("ReceiveSession", sessionModel);
