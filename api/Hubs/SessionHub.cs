@@ -46,24 +46,8 @@ namespace PlexPoster.Api.Hubs
             return percentComplete;
         }
 
-        public async Task<SessionResponseModel> InitiateSession(string authKey, string serverHost, string playerId)
+        public async Task<SessionResponseModel> InitiateSession(string authKey, string serverHost, string playerId, string[] movieLibraries)
         {
-            // List<Server> servers = await _plexClient.GetServers(authKey);
-            //
-            // if (servers == null || servers.Count == 0)
-            // {
-            //     throw new ApplicationException("Invalid Server");
-            // }
-            //
-            // Server server = servers.FirstOrDefault(c=> string.Equals(serverHost, c.Name, StringComparison.OrdinalIgnoreCase));
-            // if (server == null)
-            // {
-            //     throw new ApplicationException("Invalid Server");
-            // }
-            //
-            // Uri fullUri = server.Host.ReturnUriFromServerInfo(server);
-            //
-
             var serverHostFullUri = serverHost.TrimEnd('/');
             
             while (true)
@@ -103,7 +87,18 @@ namespace PlexPoster.Api.Hubs
                 else
                 {
                     // Pull random movie poster from Plex
-                    await Clients.Caller.SendAsync("ReceiveSession", sessionModel);
+                    var movie = await _plexService.GetRandomMovie(authKey, serverHostFullUri, movieLibraries);
+                    var randomPosterModel = new SessionResponseModel
+                    {
+                        PlayerState = "none",
+                        Title = movie.Title,
+                        ArtUrl = Path.Join(serverHostFullUri, movie.Art.TrimEnd('/'), "?X-Plex-Token=" + authKey),
+                        PosterUrl = Path.Join(serverHostFullUri, movie.Thumb.TrimEnd('/'), "?X-Plex-Token=" + authKey),
+                        Duration = movie.Duration.ToString(),
+                        Year = movie.Year,
+                        Type = movie.Type
+                    };
+                    await Clients.Caller.SendAsync("ReceiveSession", randomPosterModel);
                     Thread.Sleep(30000);
                 }
                 
