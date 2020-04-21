@@ -17,12 +17,17 @@ This app generates a web interface for displaying movie posters digitally on a w
 
 ## Setup
 
-1. Install the following:
-   - [.NET Core 3.1](https://www.microsoft.com/net/core)
-   - [Node.js >= v8.11.0](https://nodejs.org/en/download/)
-   - [Docker](https://docs.docker.com/engine/installation/)
-2. Run `npm install && npm start`
-3. Open browser and navigate to [http://localhost:8080](http://localhost:8080).
+### Api
+1. cd ./api
+1. dotnet build
+2. dotnet run
+
+### Web
+1. cd ./client-web
+2. copy .env.production -> .env.local
+3. edit .env.local with correct Plex Server values
+4. Run `npm install && npm run serve-local`
+5. Open browser and navigate to [http://localhost:8080](http://localhost:8080).
 
 ## Scripts
 
