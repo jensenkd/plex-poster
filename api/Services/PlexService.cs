@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 using Plex.Api;
 using Plex.Api.Models;
 using Plex.Api.Models.Status;
+using PlexPoster.Api.Data;
+using PlexPoster.Api.Entities;
 using PlexPoster.Api.ResourceModels;
-using Directory = Plex.Api.Models.Status.Directory;
 
 namespace PlexPoster.Api.Services
 {
@@ -17,6 +18,15 @@ namespace PlexPoster.Api.Services
         public PlexService(IPlexClient plexClient)
         {
             _plexClient = plexClient;
+        }
+
+        public async Task<Config> GetConfig()
+        {
+            await using (var db = new ConfigContext())
+            {
+                Config config = db.Configuration;
+                return config;
+            }
         }
 
         public async Task<Metadata> GetRandomMovie(string authKey, string plexServerHost, string[] movieLibraries)
@@ -47,6 +57,16 @@ namespace PlexPoster.Api.Services
 
             return sessions.FirstOrDefault(c => c.Player.MachineIdentifier == playerMachineId);
         }
-        
+
+        public async void UpdateConfig(ConfigModel configModel)
+        {
+            await using (var db = new ConfigContext())
+            {
+                Config config = db.Configuration;
+                config.ComingSoonText = configModel.ComingSoonText;
+                config.NowPlayingText = configModel.NowPlayingText;
+                await db.SaveChangesAsync();
+            }
+        }
     }
 }

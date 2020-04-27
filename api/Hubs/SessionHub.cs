@@ -1,12 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Plex.Api;
-using Plex.Api.Models.Server;
 using PlexPoster.Api.ResourceModels;
 using PlexPoster.Api.Services;
 
@@ -14,12 +11,10 @@ namespace PlexPoster.Api.Hubs
 {
     public class SessionHub : Hub
     {
-        private readonly IPlexClient _plexClient;
         private readonly PlexService _plexService;
 
-        public SessionHub(PlexService plexService, IPlexClient plexClient)
+        public SessionHub(PlexService plexService)
         {
-            _plexClient = plexClient;
             _plexService = plexService;
         }
         
@@ -46,20 +41,19 @@ namespace PlexPoster.Api.Hubs
             return percentComplete;
         }
 
-        public async Task<SessionResponseModel> InitiateSession(string authKey, string serverHost, string playerId, string[] movieLibraries)
+        public async Task<SessionResponseModel> InitiateSession(string authKey, string serverHost, string playerId, string[] movieLibraries, int delaySeconds = 30)
         {
+            const int plexSessionDelayMs = 5000;
             var serverHostFullUri = serverHost.TrimEnd('/');
             
             while (true)
             {
-                SessionResponseModel sessionModel = null;
-
                 var session = await _plexService.GetActiveSession(authKey, serverHostFullUri, playerId);
 
                 if (session?.Player != null && (string.Equals(session.Type, "movie", StringComparison.OrdinalIgnoreCase) ||
                                                 string.Equals(session.Type, "episode", StringComparison.OrdinalIgnoreCase)))
                 {
-                    sessionModel = new SessionResponseModel
+                    var sessionModel = new SessionResponseModel
                     {
                         PlayerState = session.Player.State,
                         Duration = session.Duration,
@@ -82,7 +76,7 @@ namespace PlexPoster.Api.Hubs
                     }
                     
                     await Clients.Caller.SendAsync("ReceiveSession", sessionModel);
-                    Thread.Sleep(5000);
+                    Thread.Sleep(plexSessionDelayMs);
                 }
                 else
                 {
@@ -99,9 +93,8 @@ namespace PlexPoster.Api.Hubs
                         Type = movie.Type
                     };
                     await Clients.Caller.SendAsync("ReceiveSession", randomPosterModel);
-                    Thread.Sleep(30000);
+                    Thread.Sleep(delaySeconds * 1000);
                 }
-                
             }
         }
     }

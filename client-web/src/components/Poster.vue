@@ -1,101 +1,37 @@
 <template>
-  <div id="#container">
-    <div class="row" id="top" style="overflow: hidden;" align="center">
-      <div
-        class="col-md-3"
-        style="margin-top: 0;
-          font-size: 30px;
-          font-weight: bold;
-          color: yellow;"
-      >
-        <div v-if="session.playerState != 'none'"
-          style="border: solid 1px yellow; padding: 10px; border-bottom: none;"
-        >
-          START TIME
-        </div>
-        <div v-if="session.playerState != 'none'" style="color: white; border: solid 1px yellow; padding: 10px;">
-          3:43 PM
+  <div id="#container" v-if="session">
+    <div id="top">
+      <div v-if="!isMovieSession" class="row" style="overflow: hidden;" align="center">
+        <div class="col-md-12 title-container">
+          <h1 class="title-header">COMING SOON</h1>
         </div>
       </div>
-      <div
-        id="title-header"
-        class="col-md-6"
-        style="padding-top:10px;"
-      >
-        <span v-if="session && session.playerState != 'none'">NOW PLAYING</span>
-        <span v-else>COMING SOON</span>
-      </div>
-      <div
-        class="col-md-3"
-        style="margin-top: 0;
-          font-size: 30px;
-          font-weight: bold;
-          color: yellow;"
-      >
-        <div v-if="session.playerState != 'none'"
-          style="border: solid 1px yellow; padding: 10px; border-bottom: none;"
-        >
-          END TIME
+      <div v-if="isMovieSession" class="row" style="overflow: hidden;" align="center">
+        <div class="col-md-3">
+          <div class="time-box-top">START TIME</div>
+          <div class="time-box-bottom">3:43 PM</div>
         </div>
-        <div v-if="session.playerState != 'none'" style="color: white; border: solid 1px yellow; padding: 10px;">
-          5:43 PM
+        <div class="col-md-6 title-container">
+          <h1 class="title-header">NOW PLAYING</h1>
+        </div>
+        <div class="col-md-3">
+          <div class="time-box-top">END TIME</div>
+          <div class="time-box-bottom">5:43 PM</div>
         </div>
       </div>
     </div>
-
-    <div id="middle" class="middle">
-      <img
-        v-if="session && session.posterUrl"
-        :src="session.posterUrl"
-        style="width: 100%"
-      />
+    <div id="middle">
+      <transition name="fade">
+        <img :src="session.posterUrl" style="width: 100%" />
+      </transition>
     </div>
-
-    <div class="row" style="overflow: hidden;" align="center">
-      <div
-        class="col-md-3"
-        style="margin-top: 30px;
-          font-size: 40px;
-          v-align: middle;
-          font-weight: bold;"
-      >
-        <div style="color: white;">PG 13</div>
-      </div>
-      <div
-        class="col-md-3"
-        style="margin-top: 20px;
-          font-size: 30px;
-          font-weight: bold;
-          color: yellow;"
-      >
-        <span>Year</span>
-        <div style="color: white;">2001</div>
-      </div>
-      <div
-        class="col-md-3"
-        style="margin-top: 20px;
-          font-size: 30px;
-          font-weight: bold;
-          color: yellow;"
-      >
-        <div>END TIME</div>
-        <div style="color: white;">5:43 PM</div>
-      </div>
-      <div
-        class="col-md-3"
-        style="margin-top: 20px;
-          font-size: 30px;
-          font-weight: bold;
-          color: yellow;"
-      >
-        <div>PG 13</div>
-      </div>
-    </div>
+    <div id="bottom"></div>
   </div>
 </template>
 
 <script>
 import * as signalR from "@microsoft/signalr";
+let delayInSeconds = 30;
 
 export default {
   name: "Poster",
@@ -130,7 +66,7 @@ export default {
       console.error(
         "Connection closed due to: " +
           error +
-          ".  Try refressing this page to restart the connection."
+          ". Try refressing this page to restart the connection."
       );
     });
 
@@ -143,7 +79,8 @@ export default {
             this.plexAuthKey,
             this.plexServerHost,
             this.plexPlayerMachineId,
-            this.plexMovieLibraries
+            this.plexMovieLibraries,
+            delayInSeconds
           )
           .catch(function(err) {
             return console.error(err.toString());
@@ -156,49 +93,54 @@ export default {
   mounted() {
     var me = this;
     me.connection.on("ReceiveSession", function(statusModel) {
-      if (statusModel != null) {
-        me.session = statusModel;
-      } else {
-        me.session = null;
-        console.log("No Session Available");
-      }
+      me.session = statusModel;
     });
   },
-  methods: {}
+  methods: {
+    getServerConfig() {}
+  },
+  computed: {
+    isMovieSession: function() {
+      return this.session && this.session.playerState != "none";
+    }
+  }
 };
 </script>
 
 <style>
-html,
-body {
-  height: 100%;
-  overflow-y: hidden;
-}
-
-body {
-  background-color: black;
-  color: white;
-  font-size: large;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-#title-header span {
-  font-size: 70px;
-  font-weight: normal;
-  color: yellow;
-}
-
 #container {
   min-height: 100%;
   position: relative;
 }
 
-.title {
-  font-size: 20px;
+h1.title-header {
+  font-size: 50px;
+  font-weight: bold;
+  color: yellow;
+}
+
+.title-container {
+  margin-top: 10px;
+}
+
+.time-box-top {
+  border: solid 1px yellow;
+  padding: 10px;
+  border-bottom: none;
+  font-size: 30px;
+  font-weight: bold;
+  color: yellow;
+}
+
+.time-box-bottom {
+  border: solid 1px yellow;
+  padding: 10px;
+  font-size: 30px;
+  font-weight: bold;
+  color: white;
 }
 
 #middle {
-  color: white;
   vertical-align: top;
 }
 
@@ -211,7 +153,12 @@ body {
   right: 10;
 }
 
-.newsimage {
-  margin-right: 10px;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 </style>

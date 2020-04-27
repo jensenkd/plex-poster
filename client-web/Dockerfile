@@ -1,22 +1,26 @@
-FROM node:lts-alpine
+# build stage
+FROM node:lts-alpine as build-stage
 
-# install simple http server for serving static content
-RUN npm install -g http-server
+ARG VUE_APP_API_URI
+ARG VUE_APP_PLEX_SERVER_HOST
+ARG VUE_APP_PLEX_PLAYER_MACHINE_ID
+ARG VUE_APP_PLEX_MOVIE_LIBRARIES 
+ARG VUE_APP_PLEX_AUTH_KEY
 
-# make the 'app' folder the current working directory
+ENV VUE_APP_API_URI=${VUE_APP_API_URI}
+ENV VUE_APP_PLEX_SERVER_HOST=${VUE_APP_PLEX_SERVER_HOST}
+ENV VUE_APP_PLEX_PLAYER_MACHINE_ID=${VUE_APP_PLEX_PLAYER_MACHINE_ID}
+ENV VUE_APP_PLEX_MOVIE_LIBRARIES=${VUE_APP_PLEX_MOVIE_LIBRARIES}
+ENV VUE_APP_PLEX_AUTH_KEY=${VUE_APP_PLEX_AUTH_KEY}
+
 WORKDIR /app
-
-# copy both 'package.json' and 'package-lock.json' (if available)
 COPY package*.json ./
-
-# install project dependencies
-RUN npm install
-
-# copy project files and folders to the current working directory (i.e. 'app' folder)
+RUN npm install --silent
 COPY . .
-
-# build app for production with minification
 RUN npm run build
 
-EXPOSE 8080
-CMD [ "http-server", "dist" ]
+# production stage
+FROM nginx:stable-alpine as production-stage
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+EXPOSE 80/tcp
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,0 +1,23 @@
+version: '3.7'
+
+services:
+
+  client-web:
+    container_name: plex-poster-frontend
+    build:
+      context: client-web/.
+      args:
+          VUE_APP_API_URI: http://localhost:8002/
+          VUE_APP_PLEX_SERVER_HOST: http://192.168.10.9:32400
+          VUE_APP_PLEX_PLAYER_MACHINE_ID: mot82pjdqtmfsy7q2xkgj6hi
+          VUE_APP_PLEX_MOVIE_LIBRARIES: Movies
+         
+    ports: 
+      - '8001:80'
+    
+  api:
+    container_name: plex-poster-api
+    build:
+      context: api/.
+    ports:
+      - '8002:80'

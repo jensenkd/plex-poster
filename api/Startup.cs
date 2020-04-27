@@ -39,7 +39,7 @@ namespace PlexPoster.Api
                     builder =>
                     {
                         builder
-                            .WithOrigins("http://localhost:8080")
+                            .WithOrigins("http://localhost:8080", "http://localhost:8001")
                             .AllowAnyHeader()
                             .AllowAnyMethod()
                             .AllowCredentials();
@@ -69,7 +69,6 @@ namespace PlexPoster.Api
             // Enable UseCors with named policy.
             app.UseCors(CorsOptions);
             
-            app.UseHttpsRedirection();
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
