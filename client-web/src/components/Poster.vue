@@ -1,37 +1,81 @@
 <template>
-  <div id="#container" v-if="session">
-    <div id="top">
-      <div v-if="!isMovieSession" class="row" style="overflow: hidden;" align="center">
-        <div class="col-md-12 title-container">
-          <h1 class="title-header">COMING SOON</h1>
-        </div>
+  <div id="#container">
+    <div class="row" id="top" style="overflow: hidden;" align="center">
+      <div
+        class="col-md-3"
+        style="margin-top: 0;
+          font-size: 30px;
+          font-weight: bold;
+          color: yellow;"
+      >
+        <div style="border: solid 1px yellow; padding: 10px; border-bottom: none;">START TIME</div>
+        <div style="color: white; border: solid 1px yellow; padding: 10px;">3:43 PM</div>
       </div>
-      <div v-if="isMovieSession" class="row" style="overflow: hidden;" align="center">
-        <div class="col-md-3">
-          <div class="time-box-top">START TIME</div>
-          <div class="time-box-bottom">3:43 PM</div>
-        </div>
-        <div class="col-md-6 title-container">
-          <h1 class="title-header">NOW PLAYING</h1>
-        </div>
-        <div class="col-md-3">
-          <div class="time-box-top">END TIME</div>
-          <div class="time-box-bottom">5:43 PM</div>
-        </div>
+      <div id="title-header" class="col-md-6" style="padding-top:10px; border-top: solid 1px yellow; border-bottom: solid 1px yellow;">
+        <span v-if="session">NOW PLAYING</span>
+        <span v-else>COMING SOON</span>
+      </div>
+      <div
+        class="col-md-3"
+        style="margin-top: 0;
+          font-size: 30px;
+          font-weight: bold;
+          color: yellow;"
+      >
+        <div style="border: solid 1px yellow; padding: 10px; border-bottom: none;">START TIME</div>
+        <div style="color: white; border: solid 1px yellow; padding: 10px;">5:43 PM</div>
       </div>
     </div>
-    <div id="middle">
-      <transition name="fade">
-        <img :src="session.posterUrl" style="width: 100%" />
-      </transition>
+
+    <div id="middle" class="middle">
+      <img v-if="session && session.posterUrl" :src="session.posterUrl" style="width: 100%" />
     </div>
-    <div id="bottom"></div>
+
+    <div class="row" style="overflow: hidden;" align="center">
+      <div
+        class="col-md-3"
+        style="margin-top: 30px;
+          font-size: 40px;
+          v-align: middle;
+          font-weight: bold;"
+      >
+        <div style="color: white;">PG 13</div>
+      </div>
+      <div
+        class="col-md-3"
+        style="margin-top: 20px;
+          font-size: 30px;
+          font-weight: bold;
+          color: yellow;"
+      >
+        <span>Year</span>
+        <div style="color: white;">2001</div>
+      </div>
+      <div
+        class="col-md-3"
+        style="margin-top: 20px;
+          font-size: 30px;
+          font-weight: bold;
+          color: yellow;"
+      >
+        <div>END TIME</div>
+        <div style="color: white;">5:43 PM</div>
+      </div>
+      <div
+        class="col-md-3"
+        style="margin-top: 20px;
+          font-size: 30px;
+          font-weight: bold;
+          color: yellow;"
+      >
+        <div>PG 13</div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import * as signalR from "@microsoft/signalr";
-let delayInSeconds = 30;
 
 export default {
   name: "Poster",
@@ -41,16 +85,12 @@ export default {
   data() {
     return {
       connection: null,
-      session: null,
-      plexAuthKey: process.env.VUE_APP_PLEX_AUTH_KEY,
-      plexServerHost: process.env.VUE_APP_PLEX_SERVER_HOST,
-      plexPlayerMachineId: process.env.VUE_APP_PLEX_PLAYER_MACHINE_ID,
-      plexMovieLibraries: process.env.VUE_APP_PLEX_MOVIE_LIBRARIES.split(",")
+      session: null
     };
   },
   created() {
     this.connection = new signalR.HubConnectionBuilder()
-      .withUrl(process.env.VUE_APP_API_URI + "hubs/session")
+      .withUrl("https://localhost:5001/hubs/session")
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
       .build();
@@ -66,7 +106,7 @@ export default {
       console.error(
         "Connection closed due to: " +
           error +
-          ". Try refressing this page to restart the connection."
+          ".  Try refressing this page to restart the connection."
       );
     });
 
@@ -76,11 +116,9 @@ export default {
         this.connection
           .invoke(
             "InitiateSession",
-            this.plexAuthKey,
-            this.plexServerHost,
-            this.plexPlayerMachineId,
-            this.plexMovieLibraries,
-            delayInSeconds
+            "MWU-kg7b_5UpN-xsefqL",
+            "Plex Media Server",
+            "mot82pjdqtmfsy7q2xkgj6hi"
           )
           .catch(function(err) {
             return console.error(err.toString());
@@ -93,54 +131,49 @@ export default {
   mounted() {
     var me = this;
     me.connection.on("ReceiveSession", function(statusModel) {
-      me.session = statusModel;
+      if (statusModel != null) {
+        me.session = statusModel;
+      } else {
+        me.session = null;
+        console.log("No Session Available");
+      }
     });
   },
-  methods: {
-    getServerConfig() {}
-  },
-  computed: {
-    isMovieSession: function() {
-      return this.session && this.session.playerState != "none";
-    }
-  }
+  methods: {}
 };
 </script>
 
 <style>
+html,
+body {
+  height: 100%;
+  overflow-y: hidden;
+}
+
+body {
+  background-color: black;
+  color: white;
+  font-size: large;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+#title-header span {
+  font-size: 70px;
+  font-weight: normal;
+  color: yellow;
+}
+
 #container {
   min-height: 100%;
   position: relative;
 }
 
-h1.title-header {
-  font-size: 50px;
-  font-weight: bold;
-  color: yellow;
-}
-
-.title-container {
-  margin-top: 10px;
-}
-
-.time-box-top {
-  border: solid 1px yellow;
-  padding: 10px;
-  border-bottom: none;
-  font-size: 30px;
-  font-weight: bold;
-  color: yellow;
-}
-
-.time-box-bottom {
-  border: solid 1px yellow;
-  padding: 10px;
-  font-size: 30px;
-  font-weight: bold;
-  color: white;
+.title {
+  font-size: 20px;
 }
 
 #middle {
+  color: white;
   vertical-align: top;
 }
 
@@ -153,12 +186,7 @@ h1.title-header {
   right: 10;
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
-}
-
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
+.newsimage {
+  margin-right: 10px;
 }
 </style>
