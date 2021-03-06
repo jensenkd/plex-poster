@@ -4,8 +4,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using Plex.Api;
 using Plex.Api.Api;
+using Plex.Api.Clients;
+using Plex.Api.Clients.Interfaces;
+using Plex.Api.Factories;
 using PlexPoster.Api.Hubs;
 using PlexPoster.Api.Services;
 
@@ -13,68 +17,58 @@ namespace PlexPoster.Api
 {
     public class Startup
     {
+        private IConfiguration Configuration { get; }
+        private readonly string CorsOptions = "CorsOptions";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
-        
-        private readonly string CorsOptions = "CorsOptions";
-        public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
+      
         public void ConfigureServices(IServiceCollection services)
         {
             // Setup Client Options
             var clientOptions = new ClientOptions
             {
-                ApplicationName = "PlexPoster",
-                DeviceName = "PlexPoster",
-                ClientId = Guid.Parse("0b51dda7-ccbf-4f0e-bac5-85f1024b56da")
+                Platform = "Web",
+                Product = "API_UnitTests",
+                DeviceName = "API_UnitTests",
+                ClientId = "PlexApi",
+                Version = "v1",
             };
             
-            // Setup CORS
-            services.AddCors(options =>
-            {
-                options.AddPolicy(CorsOptions,
-                    builder =>
-                    {
-                        builder
-                            .WithOrigins("http://localhost:8080", "http://localhost:8001")
-                            .AllowAnyHeader()
-                            .AllowAnyMethod()
-                            .AllowCredentials();
-                    });
-            });
-        
             // Setup DI
             services.AddLogging();
-            services.AddSingleton<IApiService, ApiService>();
-            services.AddTransient<IPlexClient, PlexClient>();
-            services.AddTransient<PlexService, PlexService>();
+            services.AddSingleton(clientOptions);
+            services.AddTransient<IPlexServerClient, PlexServerClient>();
+            services.AddTransient<IPlexAccountClient, PlexAccountClient>();
+            services.AddTransient<IPlexLibraryClient, PlexLibraryClient>();
+            services.AddTransient<IApiService, ApiService>();
+            services.AddTransient<IPlexFactory, PlexFactory>();
             services.AddTransient<IPlexRequestsHttpClient, PlexRequestsHttpClient>();
-            services.AddSingleton<ClientOptions>(clientOptions);
 
-            services.AddSignalR();
             services.AddControllers();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "PlexPoster.Api", Version = "v1" });
+            });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+       public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "PlexPoster.Api v1"));
             }
 
-            // Enable UseCors with named policy.
-            app.UseCors(CorsOptions);
-            
+            app.UseHttpsRedirection();
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<SessionHub>("/hubs/session");
             });
         }
     }

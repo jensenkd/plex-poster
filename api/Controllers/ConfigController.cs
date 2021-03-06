@@ -13,21 +13,5 @@ namespace PlexPoster.Api.Controllers
         {
             _plexService = plexService;
         }
-        
-        [HttpGet]
-        [Route("api/config")]
-        public async Task<IActionResult> Index()
-        {
-            var config = await _plexService.GetConfig();
-            return Ok(config);
-        }
-        
-        [HttpPost]
-        [Route("api/config")]
-        public IActionResult UpdateConfig(ConfigModel model)
-        {
-             _plexService.UpdateConfig(model);
-            return Ok(model);
-        }
     }
 }
