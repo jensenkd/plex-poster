@@ -12,9 +12,9 @@ This app generates a web interface for displaying movie posters digitally on a w
 
 ## Overview of Stack
 - Server
-  - ASP.NET Core
+  - .NET 5
 - Client
-  - Vue.js
+  - Vue/Vite
   - Webpack for asset bundling and HMR (Hot Module Replacement)
   - CSS Modules
   - Fetch API for REST requests
